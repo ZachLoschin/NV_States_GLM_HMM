@@ -18,8 +18,13 @@ E_real = [alpha1; alpha2];
 
 %% Initialization of Model Parameters and Storage Cell Arrays
 % Initialize the parameters A, E, and Pi
-A = [0.4 0.5;
-    0.8 0.9];
+A = [0.4 0.6;
+    0.45 0.55];
+
+
+% Trans probabilities of synthetic data
+% transition_probabilities = [0.75, 0.25;
+                            % 0.12, 0.88]
 
 % Initial alpha parameters
 % E = [0.4 0.5;
@@ -60,9 +65,10 @@ PiCell = {};
 ACell = {};
 ECell = {};
 weight_diff = [];  % Store the max weight difference
+log_likelihood_storage = [];
 
 %% Expectation-Maximization Algorithm
-for chim = 1:10
+for chim = 1:50
     PiCell{chim} = Pi;
     ACell{chim} = A;
     ECell{chim} = E;
@@ -72,7 +78,7 @@ for chim = 1:10
     % E-Step: Calculate P(Z|X,Theta)
     %         Includes calculating gamma(Zn) and eta(Zn-1, Zn)
     %--------------------------------------------------------------------------
-    [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2] = E_step_alpha(Ca, Hb, A, E, Pi, latent);
+    [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_alpha(Ca, Hb, A, E, Pi, latent);
     
     %--------------------------------------------------------------------------
     % M-Step: Maximize the Q(theta_old, theta) function 
@@ -88,10 +94,21 @@ for chim = 1:10
     A = A_new;
     E = E_new;
     weight_diff(chim) = weightDiff;
+    log_likelihood_storage = [log_likelihood_storage, log_likelihood];
     
 end
 
-plot_fit(ECell, E_real)
+% -- Plot the fits over time -- %
+plot_fit2(ECell, E_real)
+
+% -- Plot the log likelihood over time -- %
+figure()
+plot(log_likelihood_storage)
+title("Log Likelihood Vs. EM Iterations")
+ylabel("Log Likelihood")
+xlabel("EM Iterations")
+
+
 
 
 

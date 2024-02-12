@@ -11,7 +11,7 @@
 % NV state learning on Ca and Hb data windowed at 7s sampled at 10Hz.
 
 
-function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2] = E_step_alpha(input, output, A, E, Pi, latent)
+function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_alpha(input, output, A, E, Pi, latent)
     
     % Define the number of states
     num_states = length(A(:,1));    
@@ -25,6 +25,9 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2] = E_step_alpha(input, outp
 
     disp("Calculating Beta")
     beta_norm = backward_iterative(input, output, A, E, Cn);
+
+    % Calculate the log likelihood according to the Cns
+    log_likelihood = log(prod(Cn));
 
     % -- Interestingly the beta_norm values barely don't row-wise sum to 1
     
@@ -42,10 +45,10 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2] = E_step_alpha(input, outp
     
     % Calculate xi values using the formula in Bishop
     for t = 1:n-1
-        xi_11(t) = alpha_norm(t, 1) * A(1, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 1) / Cn(t);
-        xi_12(t) = alpha_norm(t, 1) * A(1, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 2) / Cn(t);
-        xi_21(t) = alpha_norm(t, 2) * A(2, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 1) / Cn(t);
-        xi_22(t) = alpha_norm(t, 2) * A(2, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 2) / Cn(t);
+        xi_11(t) = (alpha_norm(t, 1) * A(1, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 1)) / Cn(t+1);
+        xi_12(t) = (alpha_norm(t, 1) * A(1, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 2)) / Cn(t+1);
+        xi_21(t) = (alpha_norm(t, 2) * A(2, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 1)) / Cn(t+1);
+        xi_22(t) = (alpha_norm(t, 2) * A(2, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 2)) / Cn(t+1);
     end
 
         
