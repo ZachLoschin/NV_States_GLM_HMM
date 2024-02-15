@@ -28,8 +28,8 @@ function [Ca, Hb, latent, alpha1, alpha2] = gen_alpha_data()
     
     % Define parameters of the two dual alpha functions
     alpha1_t0 = 0;
-    alpha1_tau1 = 0.5;
-    alpha1_tau2 = 0.7;
+    alpha1_tau1 = 0.2;
+    alpha1_tau2 = 0.6;
 
     % alpha1_t0 = 0;
     % alpha1_tau1 = 0.5;
@@ -42,7 +42,7 @@ function [Ca, Hb, latent, alpha1, alpha2] = gen_alpha_data()
     
     % Define parameters of the two dual alpha functions
     alpha2_t0 = 0;
-    alpha2_tau1 = 0.1;
+    alpha2_tau1 = 0.6;
     alpha2_tau2 = 0.8;
     % 
     % alpha2_t0 = 0;
@@ -94,7 +94,7 @@ function [Ca, Hb, latent, alpha1, alpha2] = gen_alpha_data()
         end
     
         % Set the standard deviation for the noise
-        noise_std = 0.0;
+        noise_std = 0.02;
         
         % Generate random noise with the same size as calcium_values
         noise = noise_std * randn(size(calcium_values));

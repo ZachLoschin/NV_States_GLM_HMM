@@ -23,11 +23,13 @@ function likelihood = alpha_emit_prob(calcium, real_Hb, IRF)
     % Calculate the log likelihood -> normalized residuals
     log_likelihood = -mean(abs(pred_Hb - real_Hb));
     likelihood = exp(log_likelihood);
-    % Plot for visualization
+    
+end
+
+
+% Plot for visualization
     % figure();
     % plot(pred_Hb, 'r');
     % hold on;
     % plot(real_Hb, 'b');
     % legend("Predicted Hb", "Current Guess IRF")
-
-end

@@ -1,4 +1,4 @@
-function [Pi_new, A_new, E_new, weightDiff] = M_step_alpha(input, output, eta_11, eta_12, eta_21, eta_22, gamma1, gamma2, E)
+function [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2] = M_step_alpha(input, output, eta_11, eta_12, eta_21, eta_22, gamma1, gamma2, E)
     % Calculate the pi_k initial state probability updates
     % Pi_k = gamma(Z_1k) / Sum{j}[gamma(Z1j)]
     Pi_new = [];
@@ -53,33 +53,10 @@ function [Pi_new, A_new, E_new, weightDiff] = M_step_alpha(input, output, eta_11
 
     E_new = [class1_alpha'; class2_alpha'];
 
+    w1 = zeros(length(weights1), 1) + 2;
+    w1_ind = find(weights1>=weights2);
+    w1(w1_ind) = 1;
 
-    
-    
-    % % --- VITERBI WEIGHTING --- %
-    % 
-    % 
-    % sum_gamma_term = ((gamma1) + (gamma2));
-    % weights1 = (gamma1) ./ sum_gamma_term;
-    % weights2 = (gamma2) ./ sum_gamma_term;
-    % % 
-    % weightDiff = mean(abs(weights1 - weights2));
-    % % 
-    % w1 = zeros(length(weights1), 1);
-    % w2 = zeros(length(weights2), 1);
-    % 
-    % w1_ind = find(weights1>=weights2);
-    % w2_ind = find(weights2>=weights1);
-    % 
-    % w1(w1_ind) = 1;
-    % w2(w2_ind) = 1;
-    % 
-    % % Combine predicted alpha functions for class 1
-    % class1_alpha = sum(predicted_alphas .* w1, 1) ./ length(w1_ind);
-    % 
-    % % Combine predicted alpha functions for class 2
-    % class2_alpha = sum(predicted_alphas .* w2, 1) ./ length(w2_ind);
-    % 
-    % E_new = [class1_alpha; class2_alpha];
+    state_prediction = w1;
 end
 
