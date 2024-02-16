@@ -24,8 +24,8 @@ E_real = [alpha1; alpha2];
 % Initialize the parameters A, E, and Pi
 % Transition matrix initialization --> Playing with this shows weird LL
 % behavior...
-A = [0.8 0.2;
-    0.21 0.79];
+A = [0.2 0.8;
+    0.3 0.7];
 
 % Initial guess dual alpha function parameters 
 % -- First row controls time constants of dual alpha class 1
@@ -111,13 +111,13 @@ norm_diff = rescale(d_LL);
 % -- Plot the fits over time -- %
 plot_fit2(ECell, E_real)
 
-% % -- Plot the log likelihood over time -- %
-% figure()
-% plot(log_likelihood_storage)
-% title("Log Likelihood Vs. EM Iterations")
-% ylabel("Log Likelihood")
-% xlabel("EM Iterations")
-% legend("LL")
+% -- Plot the log likelihood over time -- %
+figure()
+plot(log_likelihood_storage)
+title("Log Likelihood Vs. EM Iterations")
+ylabel("Log Likelihood")
+xlabel("EM Iterations")
+legend("LL")
 
 % -- Plot normalized LL and Diff values -- %
 figure()

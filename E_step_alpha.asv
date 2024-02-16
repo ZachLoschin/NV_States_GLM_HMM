@@ -65,6 +65,12 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
     xi_11 = xi_11 ./ sum_xi;
     xi_12 = xi_12 ./ sum_xi;
     xi_21 = xi_21 ./ sum_xi;
-    xi_22 = xi_22 ./ sum_xi;
+    xi_22 = xi_11 ./ sum_xi;
+
+    % -- Note that xi values and the gamma ones do not sum to unity
+    % across a single time steps of the HMM. I will normalize this and see
+    % if it fits.
+    % Odd observation that the xi values are summing to 0.5 instead
+    % - 2/15/24
 
 end
