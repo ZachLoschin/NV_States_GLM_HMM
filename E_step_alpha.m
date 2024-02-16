@@ -21,7 +21,7 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
     disp("Calculating Alpha")
 
     % Calculate the forwad and backward probabilities of the IOHMM
-    [alpha_norm, Cn] = forward_iterative(input, output, A, E, Pi);  % Checking if i need to switch input and output
+    [alpha_norm, Cn] = forward_iterative(input, output, A, E, Pi);
 
     disp("Calculating Beta")
     beta_norm = backward_iterative(input, output, A, E, Cn);
@@ -35,22 +35,28 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
     gamma1 = alpha_norm(:,1) .* beta_norm(:,1);
     gamma2 = alpha_norm(:,2) .* beta_norm(:,2);
 
-    n = length(input);
+    N = length(input);
 
     % Initialize xi matrices
-    xi_11 = zeros(n-1, 1);
-    xi_12 = zeros(n-1, 1);
-    xi_21 = zeros(n-1, 1);
-    xi_22 = zeros(n-1, 1);
+    xi_11 = zeros(N-1, 1);
+    xi_12 = zeros(N-1, 1);
+    xi_21 = zeros(N-1, 1);
+    xi_22 = zeros(N-1, 1);
+
+    xi_111 = zeros(N, 1);
     
     % Calculate xi values using the formula in Bishop
-    for t = 1:n-1
+    for t = 1:N-1
         xi_11(t) = (alpha_norm(t, 1) * A(1, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 1)) / Cn(t+1);
         xi_12(t) = (alpha_norm(t, 1) * A(1, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 2)) / Cn(t+1);
         xi_21(t) = (alpha_norm(t, 2) * A(2, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 1)) / Cn(t+1);
         xi_22(t) = (alpha_norm(t, 2) * A(2, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 2)) / Cn(t+1);
     end
 
-        
+    % -- Note that xi values and the gamma ones do not sum to unity
+    % across a single time steps of the HMM. I will normalize this and see
+    % if it fits.
+    % Odd observation that the xi values are summing to 0.5 instead
+    % - 2/15/24
 
 end

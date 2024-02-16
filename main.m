@@ -9,8 +9,12 @@ clc;
 close all;
 
 %% Dataset Generation
+
+% Set the seed for reproducibility
+rng(1);
+
 % Generate the alpha dataset
-[Ca, Hb, latent, alpha1, alpha2] = gen_alpha_data();
+[Ca, Hb, latent, alpha1, alpha2, A_real] = gen_alpha_data();
 
 % Plot the alpha functions
 E_real = [alpha1; alpha2];
@@ -18,24 +22,18 @@ E_real = [alpha1; alpha2];
 
 %% Initialization of Model Parameters and Storage Cell Arrays
 % Initialize the parameters A, E, and Pi
-A = [0.51 0.49;
-    0.35 0.65];
+% Transition matrix initialization --> Playing with this shows weird LL
+% behavior...
+A = [0.8 0.2;
+    0.21 0.79];
 
-
-% Trans probabilities of synthetic data
-% transition_probabilities = [0.75, 0.25;
-                            % 0.12, 0.88]
-
-% Initial alpha parameters
-% E = [0.4 0.5;
-%     0.3 0.4];
-
+% Initial guess dual alpha function parameters 
+% -- First row controls time constants of dual alpha class 1
+% -- First row controls time constants of dual alpha class 2
 E = [0.4 0.6;
     0.81 0.91];
 
-% E = [0.5 0.7;
-%     0.1 0.8];
-
+% Generate initial guess dual alpha functions 1x70 for each class
 x = 0.1:0.1:7;
 
 alpha1_t0 = 0;
@@ -55,21 +53,24 @@ alpha1_1 = (((x-alpha1_t0) ./ alpha1_tau1) .^3) .* exp(-(x-alpha1_t0) ./ alpha1_
 alpha1_2 = -(((x-alpha1_t0) ./ alpha1_tau2) .^3) .* exp(-(x-alpha1_t0) ./ alpha1_tau2);
 alpha2 = alpha1_1 + alpha1_2;
 
-
+% Put alphas together in initial guess matrix 2x70
 E = [alpha1;alpha2];
 
+% Initial state distribution initialization
 Pi = [0.5 0.5];
 
-% Storage variables for training history
+% Storage variables for viewing training history
 PiCell = {};
 ACell = {};
 ECell = {};
-weight_diff = [];  % Store the max weight difference
+weight_diff = [];  % -- Average difference in weights btwn class1 and class2
 log_likelihood_storage = [];
 state_prediction_storage = [];
+mean_g1 = [];
+mean_g2 = [];
 
 %% Expectation-Maximization Algorithm
-for chim = 1:100
+for chim = 1:50
     PiCell{chim} = Pi;
     ACell{chim} = A;
     ECell{chim} = E;
@@ -90,32 +91,33 @@ for chim = 1:100
     %--------------------------------------------------------------------------
     % Save history of parameters and update variables for next iteration
     %--------------------------------------------------------------------------
-    
     Pi = Pi_new;
     A = A_new;
     E = E_new;
     weight_diff(chim) = weightDiff;
     log_likelihood_storage = [log_likelihood_storage, log_likelihood];
     state_prediction_storage = [state_prediction_storage, state_prediction];
-    
+    mean_g1 = [mean_g1, mean(gamma1)];
+    mean_g2 = [mean_g2, mean(gamma2)];
+
 end
+
 % -- Normalize the log-likelihood and diff values -- %
 log_likelihood_storage = log_likelihood_storage(2:end);
 norm_LL = rescale(log_likelihood_storage);
 d_LL = diff(log_likelihood_storage);
 norm_diff = rescale(d_LL);
 
-
 % -- Plot the fits over time -- %
 plot_fit2(ECell, E_real)
 
-% -- Plot the log likelihood over time -- %
-figure()
-plot(log_likelihood_storage)
-title("Log Likelihood Vs. EM Iterations")
-ylabel("Log Likelihood")
-xlabel("EM Iterations")
-legend("LL")
+% % -- Plot the log likelihood over time -- %
+% figure()
+% plot(log_likelihood_storage)
+% title("Log Likelihood Vs. EM Iterations")
+% ylabel("Log Likelihood")
+% xlabel("EM Iterations")
+% legend("LL")
 
 % -- Plot normalized LL and Diff values -- %
 figure()
@@ -127,13 +129,63 @@ xlabel("EM Iterations")
 legend(["Normalized LL", "Normalized Diff LL"], "Location","best")
 ylim([-0.05 1.05])
 
+% -- Plot the mean posterior of the states over iterations -- %
+figure()
+plot(mean_g1)
+hold on
+plot(mean_g2)
+title("Mean State Responsibility and Weight Diff")
+plot(weight_diff)
+xlabel("EM Iteration")
+ylabel("Gamma")
+legend("Gamma1", "Gamma2", "Diff in Class Weights")
+
+
 % -- Final Predictions of States -- %
 final_pred = state_prediction_storage(:,end);
 
 state_prediction_storage = state_prediction_storage == 2;
 
+% -- Plot the transition matrix predicted values over time -- %
+% Initialize vectors to store extracted elements
+A_11 = [];
+A_12 = [];
+A_21 = [];
+A_22 = [];
 
+% Loop through each cell in ACell
+for i = 1:numel(ACell)
+    % Extract the 2x2 double from the current cell
+    current_A = ACell{i};
+    
+    % Extract elements and store them
+    A_11 = [A_11, current_A(1,1)];
+    A_12 = [A_12, current_A(1,2)];
+    A_21 = [A_21, current_A(2,1)];
+    A_22 = [A_22, current_A(2,2)];
+end
 
+A_real_11 = A_real(1,1);
+A_real_22 = A_real(2,2);
+
+A_real_11 = repelem(A_real_11, length(ACell));
+A_real_22 = repelem(A_real_22, length(ACell));
+
+% Plot all elements on the same plot with different colors
+figure;
+hold on;
+plot(A_11, 'r', 'DisplayName', 'A(1,1)');
+%plot(A_12, 'r--', 'DisplayName', 'A(1,2)');
+%plot(A_21, 'b--', 'DisplayName', 'A(2,1)');
+plot(A_22, 'b', 'DisplayName', 'A(2,2)');
+plot(A_real_11, 'r*' ,"DisplayName", 'Real A(1,1)');
+plot(A_real_22, 'b*',"DisplayName", 'Real A(2,2)');
+title("Transition probabilities over EM iteration")
+hold off;
+ylim([0 1])
+
+% Add legend
+legend('show', "Location", "best");
 
 
 

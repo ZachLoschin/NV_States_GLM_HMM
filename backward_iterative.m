@@ -5,7 +5,7 @@ function [B_norm] = backward_iterative(x, u, A, E, Cn)
     % Inputs:   x = Nx70 vector of observed outputs
     %           u = Nx70 vector of inputs
     %           A = KxK matrix of transition probabilities
-    %           E = 2xK matrix of emission probabilities
+    %           E = KxN predicted irfs one row for each class
     %           Cn = 1xn vector of scaling factors from the forward algorithm
 
     % Initialize variables
@@ -31,7 +31,7 @@ function [B_norm] = backward_iterative(x, u, A, E, Cn)
             end
 
             % Normalize backward probabilities using the same scaling factors as the forward algorithm
-            B_norm(t, state) = sum(B_current) ./ Cn(t+1);  % OR t+1???
+            B_norm(t, state) = sum(B_current) ./ Cn(t+1);
         end
     end
 end

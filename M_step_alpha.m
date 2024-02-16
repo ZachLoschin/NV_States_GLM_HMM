@@ -11,10 +11,10 @@ function [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2] = 
     
     % Calculate the new transition matrix using the eta values
     % # Expected transitions j->k / # expected transitions j->any state
-    A_new(1,1) = sum(eta_11) / (sum(eta_11) + sum(eta_12));
-    A_new(1,2) = sum(eta_12) / (sum(eta_11) + sum(eta_12));
-    A_new(2,1) = sum(eta_21) / (sum(eta_21) + sum(eta_22));
-    A_new(2,2) = sum(eta_22) / (sum(eta_21) + sum(eta_22));
+    A_new(1,1) = sum(eta_11(2:end)) / (sum(eta_11(2:end)) + sum(eta_12(2:end)));
+    A_new(1,2) = sum(eta_12(2:end)) / (sum(eta_11(2:end)) + sum(eta_12(2:end)));
+    A_new(2,1) = sum(eta_21(2:end)) / (sum(eta_21(2:end)) + sum(eta_22(2:end)));
+    A_new(2,2) = sum(eta_22(2:end)) / (sum(eta_21(2:end)) + sum(eta_22(2:end)));
     
     % -- Fit the new IRFs
     
@@ -28,9 +28,6 @@ function [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2] = 
         predicted_alphas(chim, :) = ifft(fft(output(chim,:)) ./ fft(input(chim,:)));
     end
 
-    
-
-    disp("hi")
     % Normalize the weights so each timepoint sums to one across the
     % class responsabilities
 
@@ -53,6 +50,7 @@ function [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2] = 
 
     E_new = [class1_alpha'; class2_alpha'];
 
+    % -- Calculate each states prediction based on max weight
     w1 = zeros(length(weights1), 1) + 2;
     w1_ind = find(weights1>=weights2);
     w1(w1_ind) = 1;

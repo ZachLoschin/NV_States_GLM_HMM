@@ -15,7 +15,7 @@ function [F_norm, Cn] = forward_iterative(x, u, A, E, Pi)
     % Inputs:   x = Nx70 vector of observed outputs
     %           u = Nx70 vector of inputs
     %           A = KxK matrix of transition probabilities
-    %           E = 2xK matrix of emission probabilities
+    %           E = KxN predicted irfs one row for each class
 
     % Initialize variables
     n = length(x);  % Length of chain

@@ -19,10 +19,10 @@
 %--------------------------------------------------------------------------
 
 
-function [Ca, Hb, latent, alpha1, alpha2] = gen_alpha_data()
-    transition_probabilities = [0.75, 0.25;  % Probability of staying in same state or transitioning
-                                    0.12, 0.88]; % Probability of transitioning to the other state or staying
-    
+function [Ca, Hb, latent, alpha1, alpha2, transition_probabilities] = gen_alpha_data()
+    % transition_probabilities = [0.75, 0.25;  % Probability of staying in same state or transitioning
+                            %        0.12, 0.88]; % Probability of transitioning to the other state or staying
+    transition_probabilities = [0.25 .75; 0.12 0.88];
     % Define range of x values -> constructed so that there are 70 points
     x = 0.1:0.1:7;
     
@@ -54,23 +54,24 @@ function [Ca, Hb, latent, alpha1, alpha2] = gen_alpha_data()
     dual_alpha2 = alpha2_1 + alpha2_2;
     alpha2 = dual_alpha2;
     
-    
-    figure()
-    subplot(2, 1, 1)
-    plot(x, alpha1_1, 'r')
-    hold on;
-    plot(x, alpha1_2, 'b')
-    plot(x, dual_alpha1, 'k')
-    title("Construction of Class 1 Dual Alpha Function")
-    legend("Component1", "Component2", "Dual Alpha 1")
-    
-    subplot(2, 1, 2)
-    plot(x, alpha2_1, 'r')
-    hold on;
-    plot(x, alpha2_2, 'b')
-    plot(x, dual_alpha2, 'k')
-    title("Construction of Class 2 Dual Alpha Function")
-    legend("Component1", "Component2", "Dual Alpha 2")
+    % --- Plotting to verify synthetic data creation --- %
+
+    % figure()
+    % subplot(2, 1, 1)
+    % plot(x, alpha1_1, 'r')
+    % hold on;
+    % plot(x, alpha1_2, 'b')
+    % plot(x, dual_alpha1, 'k')
+    % title("Construction of Class 1 Dual Alpha Function")
+    % legend("Component1", "Component2", "Dual Alpha 1")
+    % 
+    % subplot(2, 1, 2)
+    % plot(x, alpha2_1, 'r')
+    % hold on;
+    % plot(x, alpha2_2, 'b')
+    % plot(x, dual_alpha2, 'k')
+    % title("Construction of Class 2 Dual Alpha Function")
+    % legend("Component1", "Component2", "Dual Alpha 2")
     
     
     %% Generating the data set
