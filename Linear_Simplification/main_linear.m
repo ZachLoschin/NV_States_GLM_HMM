@@ -1,8 +1,8 @@
 % Zachary Loschinskey
-% Dr. Anna Devor Rotation
+% Dr. Brian Depasquale
 % January 2024
 % Training of IOHMM and Evaluation on the test dataset
-% EM Implementation of fitting alpha function datasets
+% EM Implementation of fitting linear functions
 
 clear;
 clc;
@@ -14,46 +14,26 @@ close all;
 rng(1);
 
 % Generate the alpha dataset
-[Ca, Hb, latent, alpha1, alpha2, A_real] = gen_alpha_data();
+[Ca, Hb, latent, y1, y2, A_real, E_real] = gen_linear_data();
 
 % Plot the alpha functions
-E_real = [alpha1; alpha2];
+E_gen = E_real;
 
 
 %% Initialization of Model Parameters and Storage Cell Arrays
 % Initialize the parameters A, E, and Pi
 % Transition matrix initialization --> Playing with this shows weird LL
 % behavior...
-A = [0.3 0.7;
+A = [0.6 0.4;
     0.29 0.71];
 
 % Initial guess dual alpha function parameters 
-% -- First row controls time constants of dual alpha class 1
-% -- First row controls time constants of dual alpha class 2
-E = [0.4 0.6;
-    0.81 0.91];
+% m1 b1 ; m2 b2
+E = [5 0;
+    -2 0.5];
 
-% Generate initial guess dual alpha functions 1x70 for each class
+% x vector for fitting
 x = 0.1:0.1:7;
-
-alpha1_t0 = 0;
-alpha1_tau1 = E(1,1);
-alpha1_tau2 = E(1,2);
-
-alpha1_1 = (((x-alpha1_t0) ./ alpha1_tau1) .^3) .* exp(-(x-alpha1_t0) ./ alpha1_tau1);
-alpha1_2 = -(((x-alpha1_t0) ./ alpha1_tau2) .^3) .* exp(-(x-alpha1_t0) ./ alpha1_tau2);
-alpha1 = alpha1_1 + alpha1_2;
-
-alpha1_t0 = 0;
-alpha1_tau1 = E(2,1);
-alpha1_tau2 = E(2,2);
-
-alpha1_1 = (((x-alpha1_t0) ./ alpha1_tau1) .^3) .* exp(-(x-alpha1_t0) ./ alpha1_tau1);
-alpha1_2 = -(((x-alpha1_t0) ./ alpha1_tau2) .^3) .* exp(-(x-alpha1_t0) ./ alpha1_tau2);
-alpha2 = alpha1_1 + alpha1_2;
-
-% Put alphas together in initial guess matrix 2x70
-E = [alpha1;alpha2];
 
 % Initial state distribution initialization
 Pi = [0.5 0.5];
@@ -82,13 +62,13 @@ for chim = 1:100
     % E-Step: Calculate P(Z|X,Theta)
     %         Includes calculating gamma(Zn) and eta(Zn-1, Zn)
     %--------------------------------------------------------------------------
-    [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_alpha(Ca, Hb, A, E, Pi, latent);
+    [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_linear(Ca, Hb, A, E, Pi, latent);
     
     %--------------------------------------------------------------------------
     % M-Step: Maximize the Q(theta_old, theta) function
     %         w/ respect to pi, A, E, and U
     %--------------------------------------------------------------------------
-    [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2, w1, w2] = M_step_alpha(Ca, Hb, xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, E);
+    [Pi_new, A_new, E_new, gamma1, gamma2, w1, w2] = M_step_linear(Ca, Hb, xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, E);
 
     %--------------------------------------------------------------------------
     % Save history of parameters and update variables for next iteration
@@ -96,9 +76,7 @@ for chim = 1:100
     Pi = Pi_new;
     A = A_new;
     E = E_new;
-    weight_diff(chim) = weightDiff;
     log_likelihood_storage = [log_likelihood_storage, log_likelihood];
-    state_prediction_storage = [state_prediction_storage, state_prediction];
     mean_g1 = [mean_g1, mean(gamma1)];
     mean_g2 = [mean_g2, mean(gamma2)];
     weights1 = [weights1, w1];
@@ -113,7 +91,7 @@ d_LL = diff(log_likelihood_storage);
 norm_diff = rescale(d_LL);
 
 % -- Plot the fits over time -- %
-plot_fit2(ECell, E_real)
+plot_fit_linear(ECell, E_real)
 
 % -- Plot the log likelihood over time -- %
 figure()
@@ -133,22 +111,6 @@ xlabel("EM Iterations")
 legend(["Normalized LL", "Normalized Diff LL"], "Location","best")
 ylim([-0.05 1.05])
 
-% -- Plot the mean posterior of the states over iterations -- %
-figure()
-plot(mean_g1)
-hold on
-plot(mean_g2)
-title("Mean State Responsibility and Weight Diff")
-plot(weight_diff)
-xlabel("EM Iteration")
-ylabel("Gamma")
-legend("Gamma1", "Gamma2", "Diff in Class Weights")
-
-
-% -- Final Predictions of States -- %
-final_pred = state_prediction_storage(:,end);
-
-state_prediction_storage = state_prediction_storage == 2;
 
 % -- Plot the transition matrix predicted values over time -- %
 % Initialize vectors to store extracted elements
@@ -194,33 +156,33 @@ legend('show', "Location", "best");
 
 
 %% Analysis
-% Initialize a matrix to store the differences
-differences1 = zeros(size(weights1, 1), size(weights1, 2) - 1);
-
-% Compute differences between subsequent columns
-for i = 1:size(weights1, 2) - 1
-    differences1(:, i) = weights1(:, i+1) - weights1(:, i);
-end
-
-
-% Initialize a matrix to store the differences
-differences2 = zeros(size(weights2, 1), size(weights2, 2) - 1);
-
-% Compute differences between subsequent columns
-for i = 1:size(weights2, 2) - 1
-    differences2(:, i) = weights2(:, i+1) - weights2(:, i);
-end
-
-d1 = mean(differences1);
-d2 = mean(differences2);
-figure()
-hold on
-plot(d1)
-plot(d2)
-title("Mean Change in IRF for Each Class")
-ylabel("Mean Change in Weights")
-xlabel("EM Iteration")
-legend("Class1", "Class2")
+% % Initialize a matrix to store the differences
+% differences1 = zeros(size(weights1, 1), size(weights1, 2) - 1);
+% 
+% % Compute differences between subsequent columns
+% for i = 1:size(weights1, 2) - 1
+%     differences1(:, i) = weights1(:, i+1) - weights1(:, i);
+% end
+% 
+% 
+% % Initialize a matrix to store the differences
+% differences2 = zeros(size(weights2, 1), size(weights2, 2) - 1);
+% 
+% % Compute differences between subsequent columns
+% for i = 1:size(weights2, 2) - 1
+%     differences2(:, i) = weights2(:, i+1) - weights2(:, i);
+% end
+% 
+% d1 = mean(differences1);
+% d2 = mean(differences2);
+% figure()
+% hold on
+% plot(d1)
+% plot(d2)
+% title("Mean Change in IRF for Each Class")
+% ylabel("Mean Change in Weights")
+% xlabel("EM Iteration")
+% legend("Class1", "Class2")
 
 
 

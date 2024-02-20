@@ -1,4 +1,4 @@
-function [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2] = M_step_alpha(input, output, eta_11, eta_12, eta_21, eta_22, gamma1, gamma2, E)
+function [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2, weights1, weights2] = M_step_alpha(input, output, eta_11, eta_12, eta_21, eta_22, gamma1, gamma2, E)
     % Calculate the pi_k initial state probability updates
     % Pi_k = gamma(Z_1k) / Sum{j}[gamma(Z1j)]
     Pi_new = [];

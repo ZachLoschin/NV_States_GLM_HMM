@@ -3,15 +3,10 @@
 % January 2024
 % Neurovascular States Project
 
-% Function to calculate the E_Step for fitting alpha function data
-% Synthetic data has been created to test this function in cooperation
-% with the M_step_alpha()
-
-% When finished, these functions should be able to be implemented for real
-% NV state learning on Ca and Hb data windowed at 7s sampled at 10Hz.
+% Linear fittin
 
 
-function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_alpha(input, output, A, E, Pi, latent)
+function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_linear(input, output, A, E, Pi, latent)
     
     % Define the number of states
     num_states = length(A(:,1));    
@@ -20,9 +15,9 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
     T = length(input(:, 1));
 
     % Calculate the forwad and backward probabilities of the IOHMM
-    [alpha_norm, Cn] = forward_iterative(input, output, A, E, Pi);
+    [alpha_norm, Cn] = forward_iterative_linear(input, output, A, E, Pi);
 
-    beta_norm = backward_iterative(input, output, A, E, Cn);
+    beta_norm = backward_iterative_linear(input, output, A, E, Cn);
 
     % Calculate the log likelihood according to the Cns
     log_likelihood = log(prod(Cn));
@@ -51,10 +46,10 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
     
     % Calculate xi values using the formula in Bishop
     for t = 1:N-1
-        xi_11(t) = (alpha_norm(t, 1) * A(1, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 1)) / Cn(t+1);
-        xi_12(t) = (alpha_norm(t, 1) * A(1, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 2)) / Cn(t+1);
-        xi_21(t) = (alpha_norm(t, 2) * A(2, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 1)) / Cn(t+1);
-        xi_22(t) = (alpha_norm(t, 2) * A(2, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 2)) / Cn(t+1);
+        xi_11(t) = (alpha_norm(t, 1) * A(1, 1) * linear_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 1)) / Cn(t+1);
+        xi_12(t) = (alpha_norm(t, 1) * A(1, 2) * linear_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 2)) / Cn(t+1);
+        xi_21(t) = (alpha_norm(t, 2) * A(2, 1) * linear_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 1)) / Cn(t+1);
+        xi_22(t) = (alpha_norm(t, 2) * A(2, 2) * linear_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 2)) / Cn(t+1);
     end
 
     % -- Normalize the xi values to ensure the sum to one per time step - %
