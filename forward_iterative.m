@@ -18,7 +18,7 @@ function [F_norm, Cn] = forward_iterative(x, u, A, E, Pi)
     %           E = KxN predicted irfs one row for each class
 
     % Initialize variables
-    n = length(x);  % Length of chain
+    [n, del] = size(x);  % Length of chain I SWEAR
     k = length(A(1,:));  % Number of states
 
     % Starting points of iterations

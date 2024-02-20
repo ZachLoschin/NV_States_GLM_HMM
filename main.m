@@ -24,8 +24,8 @@ E_real = [alpha1; alpha2];
 % Initialize the parameters A, E, and Pi
 % Transition matrix initialization --> Playing with this shows weird LL
 % behavior...
-A = [0.3 0.7;
-    0.29 0.71];
+A = [0.7 .3;
+    0.2 0.8];
 
 % Initial guess dual alpha function parameters 
 % -- First row controls time constants of dual alpha class 1
@@ -72,7 +72,7 @@ weights2 = [];
 
 
 %% Expectation-Maximization Algorithm
-for chim = 1:100
+for chim = 1:200
     PiCell{chim} = Pi;
     ACell{chim} = A;
     ECell{chim} = E;

@@ -39,7 +39,7 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
     gamma2 = gamma2 ./ sum_term;
 
 
-    N = length(input);
+    [N, del] = size(input);
 
     % Initialize xi matrices
     xi_11 = zeros(N-1, 1);

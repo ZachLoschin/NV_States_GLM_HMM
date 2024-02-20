@@ -22,7 +22,8 @@
 function [Ca, Hb, latent, alpha1, alpha2, transition_probabilities] = gen_alpha_data()
     % transition_probabilities = [0.75, 0.25;  % Probability of staying in same state or transitioning
                             %        0.12, 0.88]; % Probability of transitioning to the other state or staying
-    transition_probabilities = [0.25 .75; 0.12 0.88];
+    transition_probabilities = [0.75 .25; 
+        0.12 0.88];
     % Define range of x values -> constructed so that there are 70 points
     x = 0.1:0.1:7;
     
@@ -76,7 +77,7 @@ function [Ca, Hb, latent, alpha1, alpha2, transition_probabilities] = gen_alpha_
     
     %% Generating the data set
     % Create the dataset for the IOHMM
-    num_samples = 100;
+    num_samples = 200;
     
     Ca = [];
     Hb = [];
@@ -147,7 +148,7 @@ function [Ca, Hb, latent, alpha1, alpha2, transition_probabilities] = gen_alpha_
     %% Plotting the synthetic dataset
     figure()
     
-    t = linspace(0, 7 * num_samples, 7000);
+    t = linspace(0, 7 * num_samples, 70*num_samples);
     Hb_t = Hb';
     Ca_t = Ca';
     

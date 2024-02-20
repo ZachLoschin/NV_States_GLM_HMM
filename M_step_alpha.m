@@ -11,10 +11,10 @@ function [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2, we
     
     % Calculate the new transition matrix using the eta values
     % # Expected transitions j->k / # expected transitions j->any state
-    A_new(1,1) = sum(eta_11(2:end)) / (sum(eta_11(2:end)) + sum(eta_12(2:end)));
-    A_new(1,2) = sum(eta_12(2:end)) / (sum(eta_11(2:end)) + sum(eta_12(2:end)));
-    A_new(2,1) = sum(eta_21(2:end)) / (sum(eta_21(2:end)) + sum(eta_22(2:end)));
-    A_new(2,2) = sum(eta_22(2:end)) / (sum(eta_21(2:end)) + sum(eta_22(2:end)));
+    A_new(1,1) = sum(eta_11(1:end)) / (sum(eta_11(1:end)) + sum(eta_12(1:end)));
+    A_new(1,2) = sum(eta_12(1:end)) / (sum(eta_11(1:end)) + sum(eta_12(1:end)));
+    A_new(2,1) = sum(eta_21(1:end)) / (sum(eta_21(1:end)) + sum(eta_22(1:end)));
+    A_new(2,2) = sum(eta_22(1:end)) / (sum(eta_21(1:end)) + sum(eta_22(1:end)));
     
     % -- Fit the new IRFs
     
@@ -24,7 +24,9 @@ function [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2, we
     [examples, window] = size(input);
     predicted_alphas = zeros(examples, window);
 
-    for chim=1:length(input)
+    [N, del] = size(input);
+
+    for chim=1:N
         predicted_alphas(chim, :) = ifft(fft(output(chim,:)) ./ fft(input(chim,:)));
     end
 

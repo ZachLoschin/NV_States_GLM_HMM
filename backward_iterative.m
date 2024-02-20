@@ -9,7 +9,7 @@ function [B_norm] = backward_iterative(x, u, A, E, Cn)
     %           Cn = 1xn vector of scaling factors from the forward algorithm
 
     % Initialize variables
-    n = length(x);  % Length of chain
+    [n, del] = size(x);  % Length of chain
     k = length(A(1,:));  % Number of states
 
     % Initialize backward probabilities
