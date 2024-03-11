@@ -49,10 +49,11 @@ function [xi, gamma, alpha_log, beta_log] = E_step_linear(input, output, A, E, P
 
         for i = 1:K
             for j = 1:K
-
+                                                                                                                        % WRONG
                 log_xi_unnormalized(i, j) = alpha_log(t, i) + log(A(i,j)) + linear_emit(input(t+1, :), output(t+1, :), E(K,:)) + beta_log(t+1,j);
             end
         end
+
         % Normalize the xi values
         max_xi = max(max(log_xi_unnormalized));
         denom = max_xi + log(sum(sum(exp(log_xi_unnormalized - max_xi))));
