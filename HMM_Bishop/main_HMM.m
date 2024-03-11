@@ -22,8 +22,8 @@ HMM.A = [0.2, 0.8; 0.5, 0.5];
 HMM.Pi = [0.5, 0.5];
 
 % Define cov and mean for each state
-U1 = [-1 -1];
-U2 = [1 1];
+U1 = [-5 -5];
+U2 = [-3 -3];
 Sigma1 = [1, 0; 0, 1];
 Sigma2 = [0.5, 0; 0, 0.5];
 
@@ -32,7 +32,7 @@ HMM.U = {U1, U2};
 HMM.Sigma = {Sigma1, Sigma2};
 
 % Storeage for EM loop
-num_iters = 10;
+num_iters = 30;
 log_lik_stor = zeros(1,num_iters);
 
 %% EM Loop
