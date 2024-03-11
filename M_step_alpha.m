@@ -20,7 +20,7 @@ function [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2, we
     
     % Calcualte the true IRFs for each time window
     
-    % Calculate all of the alpha function predictions
+    % Calculate all of the aAClpha function predictions
     [examples, window] = size(input);
     predicted_alphas = zeros(examples, window);
 

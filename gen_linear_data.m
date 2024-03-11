@@ -3,6 +3,11 @@
 % January 2024
 % Generation of a test dataset for Input-Output HMM Training
 
+% Zachary Loschinskey
+% Dr. Anna Devor Rotation
+% January 2024
+% Generation of a test dataset for Input-Output HMM Training
+
 %--------------------------------------------------------------------------
 % Input variable x and output variable y will be used
 %
@@ -19,60 +24,17 @@
 %--------------------------------------------------------------------------
 
 
-function [Ca, Hb, latent, alpha1, alpha2, transition_probabilities] = gen_alpha_data()
+function [Ca, Hb, latent, transition_probabilities, E] = gen_linear_data()
     % transition_probabilities = [0.75, 0.25;  % Probability of staying in same state or transitioning
                             %        0.12, 0.88]; % Probability of transitioning to the other state or staying
     transition_probabilities = [0.75 .25; 
         0.12 0.88];
     % Define range of x values -> constructed so that there are 70 points
-    x = 0.1:0.1:7;
-    
-    % Define parameters of the two dual alpha functions
-    alpha1_t0 = 0;
-    alpha1_tau1 = 0.6;
-    alpha1_tau2 = 0.7;
+    x = 0:1:100;
 
-    % alpha1_t0 = 0;
-    % alpha1_tau1 = 0.5;
-    % alpha1_tau2 = 0.6;
-    
-    alpha1_1 = (((x-alpha1_t0) ./ alpha1_tau1) .^3) .* exp(-(x-alpha1_t0) ./ alpha1_tau1);
-    alpha1_2 = -(((x-alpha1_t0) ./ alpha1_tau2) .^3) .* exp(-(x-alpha1_t0) ./ alpha1_tau2);
-    dual_alpha1 = alpha1_1 + alpha1_2;
-    alpha1 = dual_alpha1;
-    
-    % Define parameters of the two dual alpha functions
-    alpha2_t0 = 0;
-    alpha2_tau1 = 0.6;
-    alpha2_tau2 = 0.9;
-    % 
-    % alpha2_t0 = 0;
-    % alpha2_tau1 = 0.4;
-    % alpha2_tau2 = 0.55;
-    
-    alpha2_1 = (((x-alpha2_t0) ./ alpha2_tau1) .^3) .* exp(-(x-alpha2_t0) ./ alpha2_tau1);
-    alpha2_2 = -(((x-alpha2_t0) ./ alpha2_tau2) .^3) .* exp(-(x-alpha2_t0) ./ alpha2_tau2);
-    dual_alpha2 = alpha2_1 + alpha2_2;
-    alpha2 = dual_alpha2;
-    
-    % --- Plotting to verify synthetic data creation --- %
+    % Define the two linear relationships
+    E = [2.5 3; 2 1];  % m1 b1; m2 b2
 
-    % figure()
-    % subplot(2, 1, 1)
-    % plot(x, alpha1_1, 'r')
-    % hold on;
-    % plot(x, alpha1_2, 'b')
-    % plot(x, dual_alpha1, 'k')
-    % title("Construction of Class 1 Dual Alpha Function")
-    % legend("Component1", "Component2", "Dual Alpha 1")
-    % 
-    % subplot(2, 1, 2)
-    % plot(x, alpha2_1, 'r')
-    % hold on;
-    % plot(x, alpha2_2, 'b')
-    % plot(x, dual_alpha2, 'k')
-    % title("Construction of Class 2 Dual Alpha Function")
-    % legend("Component1", "Component2", "Dual Alpha 2")
     
     
     %% Generating the data set
@@ -89,10 +51,10 @@ function [Ca, Hb, latent, alpha1, alpha2, transition_probabilities] = gen_alpha_
         % Record the current state
         latent = [latent; current_state];
         
-        % Generate 70 calcium sample random number between -1.5 and 1.5
+        % Generate 70 calcium sample random number between -5 and 5
         calcium_values = zeros(1, 70);
         for chim =1:70
-            calcium_values(chim) = -1.5 + 3 * rand();
+            calcium_values(chim) = -5 + 10 * rand();
         end
     
         % Set the standard deviation for the noise
@@ -104,22 +66,10 @@ function [Ca, Hb, latent, alpha1, alpha2, transition_probabilities] = gen_alpha_
         % Add noise to each element of calcium_values
         % % % calcium_values_with_noise = calcium_values + noise;
         calcium_values_with_noise = calcium_values + noise;
-        
-        % if sample ==1
-        %     offset = 0;
-        % else
-        %     offset = Hb(end);
-        % end
-
-        offset = 0;
-
 
         % Generate data point based on the current state and the randomly selected position
         if current_state == 1
-            % Generate data from y1 with noise
-            % Hb_values = conv(calcium_values_with_noise, dual_alpha1, 'full');
-            % Hb_values = Hb_values(1:70) + offset;
-            Hb_values = ifft(fft(dual_alpha1) .* fft(calcium_values_with_noise));
+            Hb_values = calcium_values_with_noise.*E(1,1) + E(1,2);
     
             Ca = [Ca; calcium_values]; % Record input
             Hb = [Hb; Hb_values]; % Record output
@@ -127,7 +77,7 @@ function [Ca, Hb, latent, alpha1, alpha2, transition_probabilities] = gen_alpha_
             % Generate data from y1 with noise
             % Hb_values = conv(calcium_values_with_noise, dual_alpha2, 'full');
             % Hb_values = Hb_values(1:70) + offset;
-            Hb_values = ifft(fft(dual_alpha2) .* fft(calcium_values_with_noise));
+            Hb_values = calcium_values_with_noise.*E(2,1) + E(2,2);
 
             Ca = [Ca; calcium_values]; % Record input
             Hb = [Hb; Hb_values]; % Record output
@@ -176,8 +126,3 @@ function [Ca, Hb, latent, alpha1, alpha2, transition_probabilities] = gen_alpha_
     writematrix(latent, "latent.csv")
 
 end
-    
-    
-    
-    
-

@@ -4,6 +4,8 @@
 % Training of IOHMM and Evaluation on the test dataset
 % EM Implementation of fitting alpha function datasets
 
+% Uses log of values rather than scaling factors
+
 clear;
 clc;
 close all;
@@ -70,9 +72,10 @@ mean_g2 = [];
 weights1 = [];
 weights2 = [];
 
+[N, del] = size(Ca);
 
 %% Expectation-Maximization Algorithm
-for chim = 1:200
+for chim = 1:50
     PiCell{chim} = Pi;
     ACell{chim} = A;
     ECell{chim} = E;
@@ -82,13 +85,14 @@ for chim = 1:200
     % E-Step: Calculate P(Z|X,Theta)
     %         Includes calculating gamma(Zn) and eta(Zn-1, Zn)
     %--------------------------------------------------------------------------
-    [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_alpha(Ca, Hb, A, E, Pi, latent);
-    
+    [xi, gamma, alpha_log, beta_log] = E_step_alpha_log(Ca, Hb, A, E, Pi, latent);
+
+    log_likelihood = logsumexp(alpha_log(N, :));
     %--------------------------------------------------------------------------
     % M-Step: Maximize the Q(theta_old, theta) function
     %         w/ respect to pi, A, E, and U
     %--------------------------------------------------------------------------
-    [Pi_new, A_new, E_new, weightDiff, state_prediction, gamma1, gamma2, w1, w2] = M_step_alpha(Ca, Hb, xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, E);
+    [Pi_new, A_new, E_new, weightDiff, state_prediction, w1, w2] = M_step_alpha_log(Ca, Hb, xi, gamma, E);
 
     %--------------------------------------------------------------------------
     % Save history of parameters and update variables for next iteration
@@ -99,8 +103,8 @@ for chim = 1:200
     weight_diff(chim) = weightDiff;
     log_likelihood_storage = [log_likelihood_storage, log_likelihood];
     state_prediction_storage = [state_prediction_storage, state_prediction];
-    mean_g1 = [mean_g1, mean(gamma1)];
-    mean_g2 = [mean_g2, mean(gamma2)];
+    %mean_g1 = [mean_g1, mean(gamma1)];
+    %mean_g2 = [mean_g2, mean(gamma2)];
     weights1 = [weights1, w1];
     weights2 = [weights2, w2];
 

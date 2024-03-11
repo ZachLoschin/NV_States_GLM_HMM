@@ -5,7 +5,7 @@
 
 % Function to calculate the E_Step for fitting alpha function data
 % Synthetic data has been created to test this function in cooperation
-% with the M_step_alpha()
+% % with the M_step_alpha()
 
 % When finished, these functions should be able to be implemented for real
 % NV state learning on Ca and Hb data windowed at 7s sampled at 10Hz.
@@ -28,6 +28,7 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
     log_likelihood = log(prod(Cn));
 
     % -- Interestingly the beta_norm values barely don't row-wise sum to 1
+    % -- I think this is fine!
     
     % Calculate the gamma values for each class
     gamma1 = alpha_norm(:,1) .* beta_norm(:,1);
@@ -38,7 +39,6 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
     gamma1 = gamma1 ./ sum_term;
     gamma2 = gamma2 ./ sum_term;
 
-
     [N, del] = size(input);
 
     % Initialize xi matrices
@@ -46,14 +46,12 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
     xi_12 = zeros(N-1, 1);
     xi_21 = zeros(N-1, 1);
     xi_22 = zeros(N-1, 1);
-
-    xi_111 = zeros(N, 1);
     
     % Calculate xi values using the formula in Bishop
-    for t = 1:N-1
+    for t = 1:N-1                                                                               % changed from 1 1 2 2 to 1 2 1 2
         xi_11(t) = (alpha_norm(t, 1) * A(1, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 1)) / Cn(t+1);
-        xi_12(t) = (alpha_norm(t, 1) * A(1, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 2)) / Cn(t+1);
-        xi_21(t) = (alpha_norm(t, 2) * A(2, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 1)) / Cn(t+1);
+        xi_12(t) = (alpha_norm(t, 1) * A(1, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 2)) / Cn(t+1);
+        xi_21(t) = (alpha_norm(t, 2) * A(2, 1) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(1,:)) * beta_norm(t+1, 1)) / Cn(t+1);
         xi_22(t) = (alpha_norm(t, 2) * A(2, 2) * alpha_emit_prob(input(t+1, :), output(t+1, :), E(2,:)) * beta_norm(t+1, 2)) / Cn(t+1);
     end
 
@@ -62,7 +60,7 @@ function [xi_11, xi_12, xi_21, xi_22, gamma1, gamma2, log_likelihood] = E_step_a
 
     xi_11 = xi_11 ./ sum_xi;
     xi_12 = xi_12 ./ sum_xi;
-    xi_21 = xi_21 ./ sum_xi;
+    xi_21 = xi_21 ./ sum_xi;            
     xi_22 = xi_22 ./ sum_xi;
 
     Xi = [xi_11, xi_12, xi_21, xi_22];
