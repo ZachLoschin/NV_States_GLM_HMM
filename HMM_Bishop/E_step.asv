@@ -27,13 +27,13 @@ function [xi, gamma, log_lik] = E_step(HMM, X)
 
         for i = 1:K
             for j = 1:K
-                xi_unnormalized(i, j) = c(t+1) * a_norm(t, i) * HMM.A(i,j) * mvnpdf(X(t+1,:), HMM.U{j}, HMM.Sigma{j}) * b_norm(t+1,j);
+                xi_unnormalized(i, j) = (1/c(t) * a_norm(t, i) * HMM.A(i,j) * mvnpdf(X(t+1,:), HMM.U{j}, HMM.Sigma{j}) * b_norm(t+1,j);
             end
         end
 
         % Normalize the xi values
         xi(:,:,t) = xi_unnormalized / sum(xi_unnormalized, 'all');
     end
-    log_lik=sum(log(1 ./ c));
+    log_lik= sum(log(c));
 end
 

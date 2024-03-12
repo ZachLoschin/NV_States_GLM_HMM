@@ -30,20 +30,20 @@ function [alpha, c] = forward(HMM, X)
     end
 
     % Normalize and save normalizing factor Cn
-    c(1) = 1 / (sum(alpha(1, :)) + eps);
+    c(1) = 1 / (sum(alpha) + eps);
     alpha(1, :) = alpha(1, :) * c(1);
 
     for t = 2:n  % For each time point 2->n
         for state = 1:k  % For each state 1->k
-            alpha(t, state) = 0.0;
+            alpha(state, t) = 0.0;
             for prev_state = 1:k
-                alpha(t, state) = alpha(t, state) + alpha(t-1, prev_state) * HMM.A(prev_state, state);
+                alpha(state, t) = alpha(state, t) + alpha(prev_state, t-1) * HMM.A(prev_state, state);
             end
-            alpha(t, state) = alpha(t, state) * mvnpdf(X(t,:), HMM.U{state}, HMM.Sigma{state});
+            alpha(state, t) = alpha(state, t) * mvnpdf(X(t,:), HMM.U{state}, HMM.Sigma{state});
         end
 
         % Calculate normalizing factor and normalize
-        c(t) = 1 / (sum(alpha(t, :)) + eps);
-       alpha(t, :) = alpha(t, :) * c(t);
+        (t) = sum(F_norm(t, :));
+        F_norm(t, :) = F_norm(t, :) ./ Cn(t);
     end
 end

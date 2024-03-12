@@ -1,4 +1,4 @@
-function [B_norm] = backward(HMM, X, c)
+function [B_norm] = backward(HMM, X, Cn)
     % Function to calculate the backward probabilities for an IOHMM
     % using the same scaling factors as the forward algorithm
 
@@ -20,11 +20,11 @@ function [B_norm] = backward(HMM, X, c)
             B_norm(t, state) = 0;
             % Compute backward probabilities for each next state
             for next_state = 1:k
-                B_norm(t, state) = B_norm(t, state) + (HMM.A(state, next_state) * mvnpdf(X(t+1, :), HMM.U{next_state}, HMM.Sigma{next_state}) * B_norm(t+1, next_state));
+                B_norm(t, state) = B_norm(t, state) + (HMM.A(state, prev_state) * mvnpdf(X(t+1, :), HMM.U{next_state}, HMM.Sigma{next_state}) * B_norm(next_state, t+1);
             end
 
             % Normalize backward probabilities using the same scaling factors as the forward algorithm
-            B_norm(t, state) = B_norm(t, state) * c(t+1);
+            B_norm(t, state) = su;
         end
     end
 end

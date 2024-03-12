@@ -31,7 +31,7 @@ function [HMM] = M_step(HMM, xi, gamma, X)
             numerator = numerator + (gamma(n,i)* (X(n,:)-HMM.U{i})' * (X(n,:)-HMM.U{i}));
         end
 
-        denominator = sum(gamma(:,i));
+        denominator = sum(gamma(:, i));
 
         HMM.Sigma{i} = 0.5 * ((numerator / denominator) + (numerator / denominator)');
     end
