@@ -32,7 +32,7 @@ function [xi, gamma, log_lik] = E_step(HMM, X)
         end
 
         % Normalize the xi values
-        xi(:,:,t) = xi_unnormalized ./ sum(xi_unnormalized,2);
+        xi(:,:,t) = xi_unnormalized / sum(xi_unnormalized, 'all');
     end
     log_lik= log(prod(c));
 end
