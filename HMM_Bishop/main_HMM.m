@@ -31,7 +31,7 @@ Sigma2 = [0.5, 0; 0, 0.5];
 HMM.U = {U1, U2};
 HMM.Sigma = {Sigma1, Sigma2};
 
-% Storeage for EM loop
+% Storage for EM loop
 num_iters = 30;
 log_lik_stor = zeros(1,num_iters);
 

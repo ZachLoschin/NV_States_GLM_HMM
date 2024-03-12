@@ -11,7 +11,8 @@ function [HMM] = M_step(HMM, xi, gamma, X)
     A_new = zeros(K,K);
     for i = 1:K
         for j = 1:K
-            A_new(i, j) = sum(xi(i,j,:)) / (sum(xi(i,i,:)) + sum(xi(i,j,:)));
+            %A_new(i, j) = sum(xi(i,j,:)) / (sum(xi(i,i,:)) + sum(xi(i,j,:)));
+            A_new(i, j) = sum(xi(i, j, :)) / sum(gamma(i, 1:end-1));
         end
     end
 
@@ -20,7 +21,7 @@ function [HMM] = M_step(HMM, xi, gamma, X)
     
     % Update the gaussian emission model according to Bishop pg 618
     for i = 1:K
-         t = (X' * gamma(:,i)) ./ sum(gamma(:,i));
+         t = (X' * gamma(:, i)) ./ sum(gamma(:, i));
          HMM.U{i} = t';
     end
 
@@ -32,7 +33,7 @@ function [HMM] = M_step(HMM, xi, gamma, X)
 
         denominator = sum(gamma(:,i));
 
-        HMM.Sigma{i} = numerator / denominator;
+        HMM.Sigma{i} = 0.5 * ((numerator / denominator) + (numerator / denominator)');
     end
 end
 
