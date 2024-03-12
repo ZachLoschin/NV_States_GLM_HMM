@@ -32,7 +32,7 @@ HMM.U = {U1, U2};
 HMM.Sigma = {Sigma1, Sigma2};
 
 % Storage for EM loop
-num_iters = 30;
+num_iters = 100;
 log_lik_stor = zeros(1,num_iters);
 
 %% EM Loop

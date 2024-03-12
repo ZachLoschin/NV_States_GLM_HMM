@@ -11,8 +11,7 @@ function [HMM] = M_step(HMM, xi, gamma, X)
     A_new = zeros(K,K);
     for i = 1:K
         for j = 1:K
-            %A_new(i, j) = sum(xi(i,j,:)) / (sum(xi(i,i,:)) + sum(xi(i,j,:)));
-            A_new(i, j) = sum(xi(i, j, :)) / sum(gamma(i, 1:end-1));
+            A_new(i, j) = sum(xi(i,j,:)) / (sum(xi(i,i,:)) + sum(xi(i,j,:)));
         end
     end
 
