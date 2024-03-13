@@ -20,11 +20,11 @@ X = normalize([data.waiting, data.eruptions]);
 HMM = struct("A", [], "Pi", [], "U", [], "Sigma", []);
 
 % Assign values to A, Pi, U, and Sigma
-HMM.A = [0.2, 0.8; 0.5, 0.5];
+HMM.A = [0.4, 0.6; 0.5, 0.5];
 HMM.Pi = [0.5, 0.5];
 
 % Define cov and mean for each state
-U1 = [3 -5];
+U1 = [2 2];
 U2 = [-3 -3];
 Sigma1 = [1, 0; 0, 1];
 Sigma2 = [0.5, 0; 0, 0.5];
@@ -34,7 +34,7 @@ HMM.U = {U1, U2};
 HMM.Sigma = {Sigma1, Sigma2};
 
 % Storage for EM loop
-num_iters = 2;
+num_iters = 100;
 log_lik_stor = zeros(1,num_iters);
 
 %% EM Loop

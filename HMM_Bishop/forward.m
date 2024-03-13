@@ -26,7 +26,7 @@ function [alpha, c] = forward(HMM, X)
 
     for state = 1:k
         % Calculate first forward prob
-        alpha(state, 1) = HMM.Pi(k) * mvnpdf(X(1,:), HMM.U{state}, HMM.Sigma{state});
+        alpha(1, state) = HMM.Pi(state) * mvnpdf(X(1,:), HMM.U{state}, HMM.Sigma{state});
     end
 
     % Normalize and save normalizing factor Cn

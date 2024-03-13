@@ -33,7 +33,7 @@ function [HMM] = M_step(HMM, xi, gamma, X)
 
         denominator = sum(gamma(:, i));
 
-        HMM.Sigma{i} = 0.5 * ((numerator / denominator) + (numerator / denominator)');
+        HMM.Sigma{i} = 0.5 * ((numerator / denominator) + (numerator / denominator)'); % Ensure matrix is symmetric
     end
 end
 
